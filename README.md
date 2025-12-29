@@ -89,6 +89,7 @@ yarn dev
 
 - [프로젝트 계획서](./PROJECT_PLAN.md) - 전체 프로젝트 계획 및 요구사항
 - [기술 명세서](./TECHNICAL_SPEC.md) - 기술적 상세 사항 및 API 명세
+- [OAuth 설정 가이드](./OAUTH_SETUP.md) - Google/Kakao OAuth 클라이언트 ID/Secret 생성 방법
 
 ## 📝 개발 단계
 

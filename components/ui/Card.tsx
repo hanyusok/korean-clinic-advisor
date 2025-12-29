@@ -43,3 +43,17 @@ export const CardContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElem
 
 CardContent.displayName = 'CardContent';
 
+export const CardTitle = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('text-2xl font-semibold leading-none tracking-tight', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+CardTitle.displayName = 'CardTitle';
+

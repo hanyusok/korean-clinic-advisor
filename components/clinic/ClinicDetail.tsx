@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Rating } from '@/components/ui/Rating';
 import { ClinicWithRelations } from '@/types';
 import { MapPin, Phone, Globe, Heart } from 'lucide-react';
@@ -143,7 +144,15 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
 
         {activeTab === 'reviews' && (
           <div>
-            <h3 className="text-xl font-semibold mb-4">리뷰</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">리뷰</h3>
+              <Link
+                href={`/reviews/new?clinicId=${clinic.id}`}
+                className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+              >
+                리뷰 작성
+              </Link>
+            </div>
             {clinic.reviews && clinic.reviews.length > 0 ? (
               <div className="space-y-4">
                 {clinic.reviews.map((review) => (
@@ -157,12 +166,35 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
                         {new Date(review.createdAt).toLocaleDateString('ko-KR')}
                       </span>
                     </div>
-                    <p className="text-gray-700">{review.content}</p>
+                    {review.treatment && (
+                      <p className="text-sm text-gray-500 mb-2">시술: {review.treatment.name}</p>
+                    )}
+                    <p className="text-gray-700 mb-2">{review.content}</p>
+                    {review.images && review.images.length > 0 && (
+                      <div className="flex gap-2 mt-2">
+                        {review.images.map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img.url}
+                            alt={`Review image ${idx + 1}`}
+                            className="w-20 h-20 object-cover rounded"
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-600">리뷰가 없습니다.</p>
+              <div className="text-center py-12">
+                <p className="text-gray-600 mb-4">리뷰가 없습니다.</p>
+                <Link
+                  href={`/reviews/new?clinicId=${clinic.id}`}
+                  className="inline-block px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  첫 리뷰 작성하기
+                </Link>
+              </div>
             )}
           </div>
         )}
