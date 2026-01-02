@@ -5,18 +5,20 @@ import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 export function SignupForm() {
   const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const handleGoogleSignup = async () => {
     setLoading('google');
     try {
       const result = await signIn('google', {
-        callbackUrl: '/',
+        callbackUrl: callbackUrl,
         redirect: false,
       });
       
@@ -24,7 +26,7 @@ export function SignupForm() {
         toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
       } else if (result?.ok) {
         toast.success('회원가입이 완료되었습니다!');
-        router.push('/');
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (error) {
@@ -39,7 +41,7 @@ export function SignupForm() {
     setLoading('kakao');
     try {
       const result = await signIn('kakao', {
-        callbackUrl: '/',
+        callbackUrl: callbackUrl,
         redirect: false,
       });
       
@@ -47,7 +49,7 @@ export function SignupForm() {
         toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
       } else if (result?.ok) {
         toast.success('회원가입이 완료되었습니다!');
-        router.push('/');
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (error) {

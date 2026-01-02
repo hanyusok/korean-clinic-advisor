@@ -4,18 +4,20 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 export function LoginForm() {
   const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const handleGoogleLogin = async () => {
     setLoading('google');
     try {
       const result = await signIn('google', {
-        callbackUrl: '/',
+        callbackUrl: callbackUrl,
         redirect: false,
       });
       
@@ -23,7 +25,7 @@ export function LoginForm() {
         toast.error('로그인에 실패했습니다. 다시 시도해주세요.');
       } else if (result?.ok) {
         toast.success('로그인되었습니다!');
-        router.push('/');
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (error) {
@@ -38,7 +40,7 @@ export function LoginForm() {
     setLoading('kakao');
     try {
       const result = await signIn('kakao', {
-        callbackUrl: '/',
+        callbackUrl: callbackUrl,
         redirect: false,
       });
       
@@ -46,7 +48,7 @@ export function LoginForm() {
         toast.error('로그인에 실패했습니다. 다시 시도해주세요.');
       } else if (result?.ok) {
         toast.success('로그인되었습니다!');
-        router.push('/');
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (error) {
