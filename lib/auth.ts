@@ -46,6 +46,32 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       // Kakao의 경우 이메일이 없을 수 있으므로 PrismaAdapter가 처리하기 전에 이메일 생성
       if (account && user) {
+        // 디버그: Kakao 사용자 정보 확인
+        if (account.provider === 'kakao') {
+          console.log('[signIn] Kakao user object:', {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          });
+          console.log('[signIn] Kakao account object:', {
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+            type: account.type,
+          });
+          console.log('[signIn] Kakao profile object:', profile ? {
+            id: (profile as any).id,
+            nickname: (profile as any).properties?.nickname,
+            profile_image: (profile as any).properties?.profile_image,
+            email: (profile as any).kakao_account?.email,
+            name: (profile as any).kakao_account?.name,
+            gender: (profile as any).kakao_account?.gender,
+            age_range: (profile as any).kakao_account?.age_range,
+            birthday: (profile as any).kakao_account?.birthday,
+            birthyear: (profile as any).kakao_account?.birthyear,
+          } : 'profile is null');
+        }
+
         // 이메일이 없는 경우 (Kakao 등) - PrismaAdapter가 사용할 이메일 생성
         // PrismaAdapter가 User를 생성하기 전에 이메일이 반드시 설정되어야 함
         if (!user.email && account.provider && account.providerAccountId) {
@@ -71,6 +97,8 @@ export const authOptions: NextAuthOptions = {
                     providerId: account.providerAccountId,
                     name: user.name || undefined,
                     avatar: user.image || undefined,
+                    // image 필드도 동기화 (PrismaAdapter가 사용)
+                    image: user.image || undefined,
                   },
                 });
                 
@@ -97,6 +125,8 @@ export const authOptions: NextAuthOptions = {
                     providerId: account.providerAccountId,
                     name: user.name || undefined,
                     avatar: user.image || undefined,
+                    // image 필드도 동기화 (PrismaAdapter가 사용)
+                    image: user.image || undefined,
                   },
                 });
               }

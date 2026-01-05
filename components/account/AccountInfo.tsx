@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { User, Mail, Calendar, Shield, Link as LinkIcon, LogOut } from 'lucide-react';
+import { User, Mail, Calendar, Shield, Link as LinkIcon, LogOut, Edit2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import toast from 'react-hot-toast';
+import { AccountEditForm } from './AccountEditForm';
 
 interface AccountData {
   user: {
@@ -41,6 +42,7 @@ export function AccountInfo() {
   const { data: session, status } = useSession();
   const [accountData, setAccountData] = useState<AccountData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -75,6 +77,11 @@ export function AccountInfo() {
     }
   };
 
+  const handleEditSuccess = () => {
+    setIsEditing(false);
+    fetchAccountInfo(); // 계정 정보 다시 불러오기
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -95,15 +102,40 @@ export function AccountInfo() {
 
   const { user, accounts, sessions, stats } = accountData;
 
+  // 수정 모드일 때 수정 폼 표시
+  if (isEditing) {
+    return (
+      <AccountEditForm
+        initialData={{
+          name: user.name,
+          avatar: user.avatar,
+        }}
+        onCancel={() => setIsEditing(false)}
+        onSuccess={handleEditSuccess}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* 사용자 기본 정보 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5" />
-            기본 정보
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              기본 정보
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-2"
+            >
+              <Edit2 className="w-4 h-4" />
+              수정
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
