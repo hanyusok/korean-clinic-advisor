@@ -108,11 +108,24 @@ export function AccountInfo() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.name || 'User'}
-                className="w-20 h-20 rounded-full"
-              />
+              <div className="relative w-20 h-20 rounded-full overflow-hidden">
+                <img
+                  src={user.avatar}
+                  alt={user.name || 'User'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // 이미지 로드 실패 시 fallback
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback');
+                    if (fallback) {
+                      (fallback as HTMLElement).style.display = 'flex';
+                    }
+                  }}
+                />
+                <div className="avatar-fallback absolute inset-0 w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center" style={{ display: 'none' }}>
+                  <User className="w-10 h-10 text-primary" />
+                </div>
+              </div>
             ) : (
               <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
                 <User className="w-10 h-10 text-primary" />

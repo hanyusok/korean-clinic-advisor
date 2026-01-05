@@ -16,7 +16,7 @@ model User {
   name          String?
   avatar        String?
   emailVerified DateTime?
-  provider      String    // google, kakao, email
+  provider      String    @default("unknown") // google, kakao, email
   providerId    String?
   role          String    @default("user") // user, admin
   createdAt     DateTime  @default(now())

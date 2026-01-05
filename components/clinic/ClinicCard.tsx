@@ -24,12 +24,16 @@ export function ClinicCard({ clinic }: ClinicCardProps) {
   return (
     <Link href={`/clinics/${clinic.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
-        <div className="relative h-48 w-full">
+        <div className="relative h-48 w-full bg-gray-200">
           <Image
             src={mainImage}
             alt={clinic.name}
             fill
             className="object-cover"
+            onError={(e) => {
+              // 이미지 로드 실패 시 placeholder로 대체
+              e.currentTarget.src = '/images/placeholder-clinic.jpg';
+            }}
           />
         </div>
         <CardContent className="p-4">

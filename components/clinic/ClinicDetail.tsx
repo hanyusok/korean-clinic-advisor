@@ -47,12 +47,16 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
 
         {/* Image Gallery */}
         {mainImage && (
-          <div className="relative h-96 w-full rounded-lg overflow-hidden mb-6">
+          <div className="relative h-96 w-full rounded-lg overflow-hidden mb-6 bg-gray-200">
             <Image
               src={mainImage}
               alt={clinic.name}
               fill
               className="object-cover"
+              onError={(e) => {
+                // 이미지 로드 실패 시 placeholder로 대체
+                e.currentTarget.src = '/images/placeholder-clinic.jpg';
+              }}
             />
           </div>
         )}

@@ -5,34 +5,27 @@ import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 export function SignupForm() {
   const [loading, setLoading] = useState<string | null>(null);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const handleGoogleSignup = async () => {
     setLoading('google');
     try {
-      const result = await signIn('google', {
+      // OAuth는 브라우저 리다이렉트가 필요하므로 redirect 옵션을 제거
+      // NextAuth가 자동으로 OAuth 플로우를 처리하고 callbackUrl로 리다이렉트
+      await signIn('google', {
         callbackUrl: callbackUrl,
-        redirect: false,
       });
-      
-      if (result?.error) {
-        toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
-      } else if (result?.ok) {
-        toast.success('회원가입이 완료되었습니다!');
-        router.push(callbackUrl);
-        router.refresh();
-      }
+      // redirect: true이므로 여기 도달하지 않음
+      // NextAuth가 자동으로 리다이렉트 처리
     } catch (error) {
       console.error('Signup error:', error);
       toast.error('회원가입 중 오류가 발생했습니다.');
-    } finally {
       setLoading(null);
     }
   };
@@ -40,22 +33,16 @@ export function SignupForm() {
   const handleKakaoSignup = async () => {
     setLoading('kakao');
     try {
-      const result = await signIn('kakao', {
+      // OAuth는 브라우저 리다이렉트가 필요하므로 redirect 옵션을 제거
+      // NextAuth가 자동으로 OAuth 플로우를 처리하고 callbackUrl로 리다이렉트
+      await signIn('kakao', {
         callbackUrl: callbackUrl,
-        redirect: false,
       });
-      
-      if (result?.error) {
-        toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
-      } else if (result?.ok) {
-        toast.success('회원가입이 완료되었습니다!');
-        router.push(callbackUrl);
-        router.refresh();
-      }
+      // redirect: true이므로 여기 도달하지 않음
+      // NextAuth가 자동으로 리다이렉트 처리
     } catch (error) {
       console.error('Signup error:', error);
       toast.error('회원가입 중 오류가 발생했습니다.');
-    } finally {
       setLoading(null);
     }
   };

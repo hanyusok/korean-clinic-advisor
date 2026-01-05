@@ -42,11 +42,24 @@ export function Header() {
                   className="flex items-center gap-2 text-sm text-gray-700 hover:text-primary transition-colors"
                 >
                   {session.user?.image ? (
-                    <img
-                      src={session.user.image}
-                      alt={session.user.name || 'User'}
-                      className="w-8 h-8 rounded-full"
-                    />
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || 'User'}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // 이미지 로드 실패 시 fallback
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback');
+                          if (fallback) {
+                            (fallback as HTMLElement).style.display = 'flex';
+                          }
+                        }}
+                      />
+                      <div className="avatar-fallback absolute inset-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center" style={{ display: 'none' }}>
+                        <User className="w-4 h-4 text-primary" />
+                      </div>
+                    </div>
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                       <User className="w-4 h-4 text-primary" />
