@@ -176,7 +176,7 @@ export function ReviewForm({ clinicId: initialClinicId, clinicName, treatments =
                   placeholder="클리닉명을 검색하세요..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 {clinics.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -277,7 +277,7 @@ export function ReviewForm({ clinicId: initialClinicId, clinicName, treatments =
               {...register('content')}
               rows={6}
               placeholder="시술 경험을 공유해주세요..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
             <div className="flex justify-between mt-1">
               <p className="text-sm text-gray-500">
