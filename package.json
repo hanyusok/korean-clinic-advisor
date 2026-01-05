@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
     "check:users": "tsx scripts/check-user-accounts.ts",
-    "create:sample-users": "tsx scripts/create-sample-users.ts"
+    "create:sample-users": "tsx scripts/create-sample-users.ts",
+    "create:sample-clinics": "tsx scripts/create-sample-clinics.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.0",
