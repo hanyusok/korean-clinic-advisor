@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -11,7 +14,9 @@ interface ClinicCardProps {
 }
 
 export function ClinicCard({ clinic }: ClinicCardProps) {
-  const mainImage = clinic.images?.[0]?.url || '/images/placeholder-clinic.jpg';
+  const [imageError, setImageError] = useState(false);
+  const originalImage = clinic.images?.[0]?.url;
+  const hasImage = !imageError && originalImage;
   const reviewCount = clinic._count?.reviews || 0;
   const averageRating = clinic.reviews?.length
     ? clinic.reviews.reduce((sum, r) => sum + r.rating, 0) / clinic.reviews.length
@@ -24,17 +29,29 @@ export function ClinicCard({ clinic }: ClinicCardProps) {
   return (
     <Link href={`/clinics/${clinic.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
-        <div className="relative h-48 w-full bg-gray-200">
-          <Image
-            src={mainImage}
-            alt={clinic.name}
-            fill
-            className="object-cover"
-            onError={(e) => {
-              // 이미지 로드 실패 시 placeholder로 대체
-              e.currentTarget.src = '/images/placeholder-clinic.jpg';
-            }}
-          />
+        <div className="relative h-48 w-full bg-gradient-to-br from-gray-100 to-gray-200">
+          {hasImage ? (
+            <Image
+              src={originalImage}
+              alt={clinic.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              onError={() => {
+                // 이미지 로드 실패 시 fallback UI 표시
+                setImageError(true);
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-300 flex items-center justify-center">
+                  <MapPin className="w-8 h-8 text-gray-500" />
+                </div>
+                <p className="text-xs text-gray-500">이미지 없음</p>
+              </div>
+            </div>
+          )}
         </div>
         <CardContent className="p-4">
           <h3 className="font-semibold text-lg mb-2 line-clamp-1">{clinic.name}</h3>

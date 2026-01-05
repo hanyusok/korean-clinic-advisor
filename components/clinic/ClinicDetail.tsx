@@ -11,11 +11,61 @@ interface ClinicDetailProps {
   clinic: ClinicWithRelations;
 }
 
+// 리뷰 이미지 컴포넌트 (에러 처리 포함)
+function ReviewImage({ imageUrl, alt }: { imageUrl: string; alt: string }) {
+  const [imageError, setImageError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(imageUrl);
+
+  const handleError = () => {
+    if (!imageError) {
+      setImageError(true);
+      setImageSrc('/images/placeholder-clinic.jpg');
+    }
+  };
+
+  // 외부 URL인지 확인
+  const isExternal = imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
+  
+  if (imageError || !imageUrl) {
+    return (
+      <div className="relative w-20 h-20 rounded bg-gray-200 flex items-center justify-center">
+        <span className="text-xs text-gray-400">이미지 없음</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-20 h-20 rounded overflow-hidden">
+      {isExternal ? (
+        <img
+          src={imageSrc}
+          alt={alt}
+          className="w-full h-full object-cover"
+          onError={handleError}
+        />
+      ) : (
+        <Image
+          src={imageSrc}
+          alt={alt}
+          width={80}
+          height={80}
+          className="object-cover"
+          onError={handleError}
+          unoptimized={imageSrc.startsWith('/images/')}
+        />
+      )}
+    </div>
+  );
+}
+
 export function ClinicDetail({ clinic }: ClinicDetailProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'treatments' | 'reviews' | 'location'>('overview');
   const [isFavorite, setIsFavorite] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const mainImage = clinic.images?.find(img => img.type === 'main')?.url || clinic.images?.[0]?.url;
+  const originalImage = clinic.images?.find(img => img.type === 'main')?.url || clinic.images?.[0]?.url;
+  const hasImage = !imageError && originalImage;
+  const isExternal = originalImage ? (originalImage.startsWith('http://') || originalImage.startsWith('https://')) : false;
   const reviewCount = clinic._count?.reviews || 0;
   const averageRating = clinic.reviews?.length
     ? clinic.reviews.reduce((sum, r) => sum + r.rating, 0) / clinic.reviews.length
@@ -46,20 +96,41 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
         </div>
 
         {/* Image Gallery */}
-        {mainImage && (
-          <div className="relative h-96 w-full rounded-lg overflow-hidden mb-6 bg-gray-200">
-            <Image
-              src={mainImage}
-              alt={clinic.name}
-              fill
-              className="object-cover"
-              onError={(e) => {
-                // 이미지 로드 실패 시 placeholder로 대체
-                e.currentTarget.src = '/images/placeholder-clinic.jpg';
-              }}
-            />
-          </div>
-        )}
+        <div className="relative h-96 w-full rounded-lg overflow-hidden mb-6 bg-gradient-to-br from-gray-100 to-gray-200">
+          {hasImage ? (
+            isExternal ? (
+              <img
+                src={originalImage}
+                alt={clinic.name}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <Image
+                src={originalImage}
+                alt={clinic.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                className="object-cover"
+                onError={() => {
+                  // 이미지 로드 실패 시 fallback UI 표시
+                  setImageError(true);
+                }}
+                unoptimized={originalImage.startsWith('/images/')}
+              />
+            )
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-300 flex items-center justify-center">
+                  <MapPin className="w-12 h-12 text-gray-500" />
+                </div>
+                <p className="text-lg text-gray-600 font-medium">이미지 없음</p>
+                <p className="text-sm text-gray-500 mt-1">{clinic.name}</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -177,12 +248,7 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
                     {review.images && review.images.length > 0 && (
                       <div className="flex gap-2 mt-2">
                         {review.images.map((img, idx) => (
-                          <img
-                            key={idx}
-                            src={img.url}
-                            alt={`Review image ${idx + 1}`}
-                            className="w-20 h-20 object-cover rounded"
-                          />
+                          <ReviewImage key={img.id || idx} imageUrl={img.url} alt={`Review image ${idx + 1}`} />
                         ))}
                       </div>
                     )}
