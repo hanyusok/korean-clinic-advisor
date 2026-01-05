@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Rating } from '@/components/ui/Rating';
+import { ClinicMap } from '@/components/map/ClinicMap';
 import { ClinicWithRelations } from '@/types';
 import { MapPin, Phone, Globe, Heart } from 'lucide-react';
 
@@ -273,11 +274,30 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
           <div>
             <h3 className="text-xl font-semibold mb-4">위치</h3>
             {clinic.latitude && clinic.longitude ? (
-              <div className="h-96 w-full bg-gray-200 rounded-lg flex items-center justify-center">
-                <p className="text-gray-600">지도가 여기에 표시됩니다 (Google Maps 연동 필요)</p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <MapPin className="w-5 h-5" />
+                  <span className="font-medium">{clinic.address}</span>
+                </div>
+                <ClinicMap
+                  latitude={Number(clinic.latitude)}
+                  longitude={Number(clinic.longitude)}
+                  clinicName={clinic.name}
+                  address={clinic.address}
+                  height="500px"
+                />
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-gray-700">
+                    <strong>참고:</strong> 지도에서 클리닉 위치를 확인할 수 있습니다. 
+                    지도를 드래그하거나 확대/축소하여 주변 지역을 탐색하세요.
+                  </p>
+                </div>
               </div>
             ) : (
-              <p className="text-gray-600">위치 정보가 없습니다.</p>
+              <div className="text-center py-12">
+                <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-600">위치 정보가 없습니다.</p>
+              </div>
             )}
           </div>
         )}
