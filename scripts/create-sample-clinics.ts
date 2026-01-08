@@ -12,6 +12,7 @@
 
 import { PrismaClient, Prisma } from '@prisma/client';
 import dotenv from 'dotenv';
+import { uploadImage, isCloudinaryConfigured } from '../lib/cloudinary';
 
 // 환경 변수 로드
 dotenv.config({ path: '.env.local' });
@@ -171,6 +172,30 @@ function generateCoordinates(region: typeof REGIONS[0]): { latitude: number; lon
 async function createSampleClinics() {
   console.log('=== 샘플 클리닉 데이터 생성 시작 ===\n');
   
+  // 환경 변수 확인 (디버깅용)
+  const hasCloudName = !!process.env.CLOUDINARY_CLOUD_NAME;
+  const hasApiKey = !!process.env.CLOUDINARY_API_KEY;
+  const hasApiSecret = !!process.env.CLOUDINARY_API_SECRET;
+  
+  // Cloudinary 설정 확인
+  const useCloudinary = isCloudinaryConfigured();
+  if (useCloudinary) {
+    console.log('☁️  Cloudinary 설정 확인됨 - 이미지를 Cloudinary에 업로드합니다.');
+    console.log(`   Cloud Name: ${process.env.CLOUDINARY_CLOUD_NAME}`);
+    console.log(`   API Key: ${process.env.CLOUDINARY_API_KEY?.substring(0, 8)}...`);
+    console.log(`   API Secret: ${process.env.CLOUDINARY_API_SECRET ? '설정됨' : '없음'}\n`);
+  } else {
+    console.log('⚠️  Cloudinary가 설정되지 않았습니다. 이미지 URL만 저장합니다.');
+    console.log('   환경 변수 상태:');
+    console.log(`   - CLOUDINARY_CLOUD_NAME: ${hasCloudName ? '✅' : '❌'}`);
+    console.log(`   - CLOUDINARY_API_KEY: ${hasApiKey ? '✅' : '❌'}`);
+    console.log(`   - CLOUDINARY_API_SECRET: ${hasApiSecret ? '✅' : '❌'}`);
+    console.log('\n   Cloudinary를 사용하려면 .env.local 파일에 다음 변수를 설정하세요:');
+    console.log('   - CLOUDINARY_CLOUD_NAME');
+    console.log('   - CLOUDINARY_API_KEY');
+    console.log('   - CLOUDINARY_API_SECRET\n');
+  }
+  
   try {
     // 1. Treatment 데이터 생성 (없는 경우만)
     console.log('📋 시술 종류 데이터 확인 중...');
@@ -271,10 +296,60 @@ async function createSampleClinics() {
         
         for (let j = 0; j < imageCount; j++) {
           const imageType = j === 0 ? 'main' : randomChoice(['interior', 'exterior']);
+          let imageUrl: string;
+          
+          if (useCloudinary) {
+            try {
+              // 랜덤 이미지 다운로드 (Picsum Photos API 사용)
+              // 각 이미지 타입에 맞는 시드 값 생성
+              const seed = `${clinic.id}-${j}-${imageType}`;
+              const imageWidth = 800;
+              const imageHeight = 600;
+              
+              // Picsum Photos로 랜덤 이미지 가져오기
+              // seed를 사용하여 동일한 클리닉/이미지 조합에 대해 일관된 이미지 제공
+              const imageUrlToDownload = `https://picsum.photos/seed/${seed}/${imageWidth}/${imageHeight}`;
+              
+              // 이미지 다운로드
+              const response = await fetch(imageUrlToDownload, {
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                },
+              });
+              
+              if (!response.ok) {
+                throw new Error(`Failed to download image: ${response.statusText}`);
+              }
+              
+              const imageBuffer = Buffer.from(await response.arrayBuffer());
+              
+              // Cloudinary에 업로드
+              const uploadResult = await uploadImage(imageBuffer, {
+                folder: `korean-clinic-advisor/clinics/${clinic.id}`,
+                resource_type: 'image',
+                allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+                max_file_size: 10 * 1024 * 1024,
+              });
+              
+              imageUrl = uploadResult.secure_url;
+              
+              if (j === 0 && (i + 1) % 10 === 0) {
+                console.log(`   ✅ 이미지 업로드 완료 (클리닉 ${i + 1})`);
+              }
+            } catch (error: any) {
+              console.error(`   ⚠️  이미지 업로드 실패 (클리닉 ${i + 1}, 이미지 ${j + 1}):`, error.message);
+              // 실패 시 fallback으로 picsum.photos URL 직접 사용
+              imageUrl = `https://picsum.photos/800/600?random=${clinic.id}-${j}`;
+            }
+          } else {
+            // Cloudinary가 설정되지 않은 경우 기존 방식 사용
+            imageUrl = `https://picsum.photos/800/600?random=${clinic.id}-${j}`;
+          }
+          
           await prisma.clinicImage.create({
             data: {
               clinicId: clinic.id,
-              url: `https://picsum.photos/800/600?random=${clinic.id}-${j}`,
+              url: imageUrl,
               type: imageType,
               order: j,
             },
