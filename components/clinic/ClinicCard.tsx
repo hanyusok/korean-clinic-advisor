@@ -17,6 +17,8 @@ export function ClinicCard({ clinic }: ClinicCardProps) {
   const [imageError, setImageError] = useState(false);
   const originalImage = clinic.images?.[0]?.url;
   const hasImage = !imageError && originalImage;
+  // Cloudinary URL인지 확인 (외부 URL)
+  const isExternal = originalImage ? (originalImage.startsWith('http://') || originalImage.startsWith('https://')) : false;
   const reviewCount = clinic._count?.reviews || 0;
   const averageRating = clinic.reviews?.length
     ? clinic.reviews.reduce((sum, r) => sum + r.rating, 0) / clinic.reviews.length
@@ -31,17 +33,29 @@ export function ClinicCard({ clinic }: ClinicCardProps) {
       <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
         <div className="relative h-48 w-full bg-gradient-to-br from-gray-100 to-gray-200">
           {hasImage ? (
-            <Image
-              src={originalImage}
-              alt={clinic.name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-              onError={() => {
-                // 이미지 로드 실패 시 fallback UI 표시
-                setImageError(true);
-              }}
-            />
+            isExternal ? (
+              // Cloudinary 등 외부 URL인 경우 일반 img 태그 사용
+              <img
+                src={originalImage}
+                alt={clinic.name}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              // 로컬 이미지인 경우 Next.js Image 사용
+              <Image
+                src={originalImage}
+                alt={clinic.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover"
+                onError={() => {
+                  // 이미지 로드 실패 시 fallback UI 표시
+                  setImageError(true);
+                }}
+                unoptimized={originalImage?.startsWith('/images/')}
+              />
+            )
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center">

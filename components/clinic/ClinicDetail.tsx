@@ -97,30 +97,80 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
         </div>
 
         {/* Image Gallery */}
-        <div className="relative h-96 w-full rounded-lg overflow-hidden mb-6 bg-gradient-to-br from-gray-100 to-gray-200">
-          {hasImage ? (
-            isExternal ? (
-              <img
-                src={originalImage}
-                alt={clinic.name}
-                className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <Image
-                src={originalImage}
-                alt={clinic.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
-                className="object-cover"
-                onError={() => {
-                  // 이미지 로드 실패 시 fallback UI 표시
-                  setImageError(true);
-                }}
-                unoptimized={originalImage.startsWith('/images/')}
-              />
-            )
-          ) : (
+        {clinic.images && clinic.images.length > 0 ? (
+          <div className="mb-6">
+            {/* Main Image */}
+            <div className="relative h-96 w-full rounded-lg overflow-hidden mb-4 bg-gradient-to-br from-gray-100 to-gray-200">
+              {hasImage ? (
+                isExternal ? (
+                  <img
+                    src={originalImage}
+                    alt={clinic.name}
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <Image
+                    src={originalImage}
+                    alt={clinic.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                    className="object-cover"
+                    onError={() => {
+                      setImageError(true);
+                    }}
+                    unoptimized={originalImage.startsWith('/images/')}
+                  />
+                )
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-300 flex items-center justify-center">
+                      <MapPin className="w-12 h-12 text-gray-500" />
+                    </div>
+                    <p className="text-lg text-gray-600 font-medium">이미지 없음</p>
+                    <p className="text-sm text-gray-500 mt-1">{clinic.name}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Thumbnail Gallery (if multiple images) */}
+            {clinic.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {clinic.images.slice(0, 4).map((img, idx) => {
+                  const imgIsExternal = img.url.startsWith('http://') || img.url.startsWith('https://');
+                  return (
+                    <div key={img.id || idx} className="relative aspect-video rounded overflow-hidden bg-gray-100">
+                      {imgIsExternal ? (
+                        <img
+                          src={img.url}
+                          alt={`${clinic.name} 이미지 ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Image
+                          src={img.url}
+                          alt={`${clinic.name} 이미지 ${idx + 1}`}
+                          fill
+                          sizes="(max-width: 768px) 25vw, 200px"
+                          className="object-cover"
+                          unoptimized={img.url.startsWith('/images/')}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+                {clinic.images.length > 4 && (
+                  <div className="relative aspect-video rounded overflow-hidden bg-gray-200 flex items-center justify-center">
+                    <span className="text-sm text-gray-500">+{clinic.images.length - 4}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="relative h-96 w-full rounded-lg overflow-hidden mb-6 bg-gradient-to-br from-gray-100 to-gray-200">
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center">
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-300 flex items-center justify-center">
@@ -130,8 +180,8 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
                 <p className="text-sm text-gray-500 mt-1">{clinic.name}</p>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
