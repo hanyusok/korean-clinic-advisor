@@ -1,13 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { Button } from '@/components/ui/Button';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Menu, X } from 'lucide-react';
 
 export function Header() {
   const { data: session, status } = useSession();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
@@ -16,7 +18,8 @@ export function Header() {
   return (
     <header className="border-b bg-white sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        {/* Desktop Header */}
+        <div className="hidden md:flex items-center justify-between h-16">
           <Link href="/" className="text-2xl font-bold text-primary">
             Korean Clinic Advisor
           </Link>
@@ -65,7 +68,7 @@ export function Header() {
                       <User className="w-4 h-4 text-primary" />
                     </div>
                   )}
-                  <span className="hidden md:inline">
+                  <span className="hidden lg:inline">
                     {session.user?.name || session.user?.email}
                   </span>
                 </Link>
@@ -87,6 +90,101 @@ export function Header() {
               </Link>
             )}
           </nav>
+        </div>
+
+        {/* Mobile Header */}
+        <div className="md:hidden">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="text-xl font-bold text-primary">
+              Korean Clinic Advisor
+            </Link>
+            
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-gray-700 hover:text-primary transition-colors"
+              aria-label="메뉴"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="pb-4 border-t space-y-4">
+              <div className="pt-4">
+                <SearchBar />
+              </div>
+              
+              <nav className="flex flex-col space-y-3">
+                <Link
+                  href="/clinics"
+                  className="text-gray-700 hover:text-primary transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  클리닉
+                </Link>
+                
+                {status === 'loading' ? (
+                  <div className="w-8 h-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin" />
+                ) : session ? (
+                  <>
+                    <Link
+                      href="/account"
+                      className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors py-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {session.user?.image ? (
+                        <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                          <img
+                            src={session.user.image}
+                            alt={session.user.name || 'User'}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback');
+                              if (fallback) {
+                                (fallback as HTMLElement).style.display = 'flex';
+                              }
+                            }}
+                          />
+                          <div className="avatar-fallback absolute inset-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center" style={{ display: 'none' }}>
+                            <User className="w-4 h-4 text-primary" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="w-4 h-4 text-primary" />
+                        </div>
+                      )}
+                      <span>{session.user?.name || session.user?.email}</span>
+                    </Link>
+                    <Button
+                      onClick={() => {
+                        handleSignOut();
+                        setMobileMenuOpen(false);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 w-full justify-start"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>로그아웃</span>
+                    </Button>
+                  </>
+                ) : (
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" size="sm" className="w-full">
+                      로그인
+                    </Button>
+                  </Link>
+                )}
+              </nav>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -11,6 +11,11 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Korean Clinic Advisor - Find the Best Skin Clinics in Gangnam',
   description: 'Search and compare skin clinics in Gangnam area. Read reviews, compare prices, and find the best clinic for your needs.',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default function RootLayout({
@@ -28,7 +33,13 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
-            <Toaster position="top-right" />
+            <Toaster 
+              position="top-center"
+              containerClassName="!top-16"
+              toastOptions={{
+                className: 'max-w-sm mx-auto',
+              }}
+            />
           </div>
         </SessionProvider>
       </body>

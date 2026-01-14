@@ -242,26 +242,47 @@ export function ClinicDetail({ clinic }: ClinicDetailProps) {
           <div>
             <h3 className="text-xl font-semibold mb-4">시술 및 가격</h3>
             {clinic.clinicTreatments && clinic.clinicTreatments.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-3">시술명</th>
-                      <th className="text-right p-3">가격</th>
-                      <th className="text-right p-3">소요시간</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {clinic.clinicTreatments.map((ct) => (
-                      <tr key={ct.id} className="border-b">
-                        <td className="p-3">{ct.treatment.name}</td>
-                        <td className="text-right p-3">{Number(ct.price).toLocaleString()}원</td>
-                        <td className="text-right p-3">{ct.duration ? `${ct.duration}분` : '-'}</td>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-3">시술명</th>
+                        <th className="text-right p-3">가격</th>
+                        <th className="text-right p-3">소요시간</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {clinic.clinicTreatments.map((ct) => (
+                        <tr key={ct.id} className="border-b">
+                          <td className="p-3">{ct.treatment.name}</td>
+                          <td className="text-right p-3">{Number(ct.price).toLocaleString()}원</td>
+                          <td className="text-right p-3">{ct.duration ? `${ct.duration}분` : '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                  {clinic.clinicTreatments.map((ct) => (
+                    <div key={ct.id} className="border rounded-lg p-4 space-y-2">
+                      <h4 className="font-semibold text-lg">{ct.treatment.name}</h4>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">가격</span>
+                        <span className="font-medium text-primary">{Number(ct.price).toLocaleString()}원</span>
+                      </div>
+                      {ct.duration && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">소요시간</span>
+                          <span className="text-gray-700">{ct.duration}분</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <p className="text-gray-600">시술 정보가 없습니다.</p>
             )}
