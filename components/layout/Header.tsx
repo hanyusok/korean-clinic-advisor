@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { Button } from '@/components/ui/Button';
-import { User, LogOut, Menu, X } from 'lucide-react';
+import { User, LogOut, Menu, X, Sparkles } from 'lucide-react';
 
 export function Header() {
   const { data: session, status } = useSession();
@@ -20,8 +20,11 @@ export function Header() {
       <div className="container mx-auto px-4">
         {/* Desktop Header */}
         <div className="hidden md:flex items-center justify-between h-16">
-          <Link href="/" className="text-2xl font-bold text-primary">
-            Korean Clinic Advisor
+          <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-primary">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span>Korean Clinic Advisor</span>
           </Link>
           
           <div className="flex-1 max-w-2xl mx-8">
@@ -95,8 +98,11 @@ export function Header() {
         {/* Mobile Header */}
         <div className="md:hidden">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-xl font-bold text-primary">
-              Korean Clinic Advisor
+            <Link href="/" className="flex items-center gap-2 text-xl font-bold text-primary">
+              <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <span>Korean Clinic Advisor</span>
             </Link>
             
             <button
